@@ -61,16 +61,21 @@ RCT_EXPORT_METHOD(rotateImage:(NSURLRequest *)imageURL
     UIImage *rotatedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
-    // Store image
-    [_bridge.imageStoreManager storeImage:rotatedImage withBlock:^(NSString *rotatedImageTag) {
-      if (!rotatedImageTag) {
-        NSString *errorMessage = @"Error storing rotated image in RCTImageStoreManager";
-        RCTLogWarn(@"%@", errorMessage);
-        errorCallback(RCTErrorWithMessage(errorMessage));
-        return;
+    // Save image to temp directory
+    NSString* tempDir = nil;
+      if (@available(iOS 10.0, *)) {
+          tempDir = [NSFileManager.defaultManager.temporaryDirectory.absoluteString substringFromIndex: 7];
+      } else {
+          tempDir = NSTemporaryDirectory();
       }
-      successCallback(@[rotatedImageTag]);
-    }];
+      
+    NSString* fileName = [NSString stringWithFormat:@"%@.jpeg", [[NSUUID UUID] UUIDString]];
+    NSString* path = [NSString pathWithComponents: @[tempDir, fileName]];
+    
+    NSData* data = UIImageJPEGRepresentation(rotatedImage, 1.0);
+    [data writeToFile:path atomically:YES];
+    
+    successCallback(@[path]);
   }];
 }
 

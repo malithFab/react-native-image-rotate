@@ -1,5 +1,8 @@
 # react-native-image-rotate
 
+Original package store images in React ImageStore, that is deprecated. 
+This fork saves rotated images in app temp directory.
+
 This project supports react-native >= 0.40.0
 
 This module is meant to be used together with react-native's
